@@ -38,8 +38,7 @@ void add_pred_proie (Animal **liste_pred, Animal **liste_proie) {
   ajouter_animal(19, 11, 6, liste_proie);
 }
 
-int main(void) {
-  int i;
+int main_partie_1(void) {
   Animal *liste_proie = NULL;
   Animal *liste_predateur = NULL;
   srand(time(NULL));
@@ -48,5 +47,22 @@ int main(void) {
   create_liste_pred(&liste_predateur);
   add_pred_proie(&liste_predateur, &liste_proie);
   afficher_ecosys(liste_proie,liste_predateur);  
+  return EXIT_SUCCESS;
+}
+
+int main(void) {
+  Animal *liste_pred = NULL;
+  Animal *liste_proie = NULL;
+  ajouter_animal(5, 5, 10, &liste_pred);
+  liste_pred->dir[0] = 1;
+  liste_pred->dir[1] = 1;
+  for (int i = 0; i < 50; i++) {
+    bouger_animaux(liste_pred);
+    reproduce(&liste_pred, 1);
+    afficher_ecosys(liste_pred, liste_proie);
+    sleep(1);
+    clear_screen();
+  }
+
   return EXIT_SUCCESS;
 }

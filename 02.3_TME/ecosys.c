@@ -4,6 +4,11 @@
 #include <string.h>
 #include "ecosys.h"
 
+float p_ch_dir=0.01;
+float p_reproduce_proie=0.4;
+float p_reproduce_predateur=0.5;
+int temps_repousse_herbe=-15;
+
 /* PARTIE 1*/
 /* Fourni: Part 1, exercice 3, question 2 */
 Animal *creer_animal(int x, int y, float energie) {
@@ -224,16 +229,44 @@ void lire_ecosys(const char *nom_fichier, Animal **liste_predateur, Animal **lis
   lire_animal(f_eco_sys, liste_predateur, "predateurs");
 }
 
+void bouger_animal(Animal *la) {
+  if (la->energie <= 0) return;
+  int x, y;
+  x = (la->x + la->dir[0]) % SIZE_X;
+  while (x < 0)
+    x += SIZE_X;
+  y = (la->y + la->dir[1]) % SIZE_Y;
+  while (y < 0)
+    y += SIZE_Y;
+  la->x = x;
+  la->y = y;
+  --(la->energie);
+}
+
 /* Part 2. Exercice 4, question 1 */
 void bouger_animaux(Animal *la) {
-    /*A Completer*/
-
+  while (la) {
+    bouger_animal(la);
+    la = la->suivant;
+  }
 }
 
 /* Part 2. Exercice 4, question 3 */
 void reproduce(Animal **liste_animal, float p_reproduce) {
-   /*A Completer*/
+  Animal *new_animals = NULL;
+  Animal *iter_animals = *liste_animal;
 
+  while (iter_animals) {
+    if (rand() / RAND_MAX < p_reproduce) {
+      ajouter_animal(iter_animals->x, iter_animals->y, iter_animals->energie / 2, &new_animals);
+      iter_animals->energie /= 2;
+    }
+    iter_animals = iter_animals->suivant;
+  }
+  if (new_animals) {
+    new_animals->suivant = *liste_animal;
+    *liste_animal = new_animals;
+  }
 }
 
 

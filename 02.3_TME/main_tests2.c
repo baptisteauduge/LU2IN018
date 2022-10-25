@@ -63,6 +63,7 @@ int main(void) {
 
   add_proie_pred(&liste_proie, &liste_predateurs);
   check_size_proie_pred(liste_proie, liste_predateurs);
+  bouger_animaux(liste_proie);
   afficher_ecosys(liste_predateurs, liste_proie);
   ecrire_ecosys("test_ecosys.conf", liste_predateurs, liste_proie);
   liberer_liste_animaux(liste_proie);

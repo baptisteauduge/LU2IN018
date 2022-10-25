@@ -11,12 +11,6 @@
 #define NB_PREDATEURS 20
 #define T_WAIT 40000
 
-/* Parametres globaux de l'ecosysteme (externes dans le ecosys.h)*/
-float p_ch_dir=0.01;
-float p_reproduce_proie=0.4;
-float p_reproduce_predateur=0.5;
-int temps_repousse_herbe=-15;
-
 int main(void) {
  
   /* A completer. Part 2:
