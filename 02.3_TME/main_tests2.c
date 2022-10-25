@@ -64,10 +64,17 @@ int main(void) {
   add_proie_pred(&liste_proie, &liste_predateurs);
   check_size_proie_pred(liste_proie, liste_predateurs);
   afficher_ecosys(liste_predateurs, liste_proie);
+  ecrire_ecosys("test_ecosys.conf", liste_predateurs, liste_proie);
+  liberer_liste_animaux(liste_proie);
+  liberer_liste_animaux(liste_predateurs);
+  liste_proie = NULL;
+  liste_predateurs = NULL;
+
+  lire_ecosys("test_ecosys.conf", &liste_predateurs, &liste_proie);
+  afficher_ecosys(liste_predateurs, liste_proie);
   find_del_animal_in_list(&liste_proie, &liste_predateurs);
   afficher_ecosys(liste_predateurs, liste_proie);
   liberer_liste_animaux(liste_proie);
   liberer_liste_animaux(liste_predateurs);
-
   return EXIT_SUCCESS;
 }

@@ -3,6 +3,7 @@
 
 #define SIZE_X 20
 #define SIZE_Y 50
+#define MAX_LINE_SIZE 255
 
 typedef struct _animal {
   int x;
@@ -24,8 +25,11 @@ void enlever_animal(Animal **liste, Animal *animal);
 Animal* liberer_liste_animaux(Animal *liste);
 void afficher_ecosys(Animal *liste_predateur, Animal *liste_proie);
 
-
-
+void ecrire_animal(FILE *file, Animal *liste_anim, char *balise);
+void ecrire_ecosys(const char *nom_fichier, Animal *liste_predateur, Animal *liste_proie);
+void set_open_close_balise (char *balise, char *open_balise, char *close_balise);
+void lire_animal(FILE *file, Animal **liste_anim, char *balise);
+void lire_ecosys(const char *nom_fichier, Animal **liste_predateur, Animal **liste_proie);
 void bouger_animaux(Animal *la);
 Animal *animal_en_XY(Animal *l, int x, int y);
 void rafraichir_predateurs(Animal **liste_predateur, Animal **liste_proie);

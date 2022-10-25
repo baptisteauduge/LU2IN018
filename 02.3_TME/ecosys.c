@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "ecosys.h"
 
 /* PARTIE 1*/
@@ -32,6 +33,19 @@ void ajouter_animal(int x, int y,  float energie, Animal **liste_animal) {
   assert(y < SIZE_Y);
 
   Animal *na = creer_animal(x, y, energie);
+  na->suivant = *liste_animal;
+  *liste_animal = na;
+}
+
+void ajouter_animal_with_dir(int x, int y, float energie, int* dir, Animal **liste_animal) {
+  assert(x < SIZE_X);
+  assert(y < SIZE_Y);
+  Animal *na = (Animal *)malloc(sizeof(Animal));
+  na->x = x;
+  na->y = y;
+  na->energie = energie;
+  na->dir[0] = dir[0];
+  na->dir[1] = dir[1];
   na->suivant = *liste_animal;
   *liste_animal = na;
 }
@@ -148,6 +162,67 @@ void clear_screen() {
 }
 
 /* PARTIE 2*/
+
+/*
+* Balise is the name of the balise around animals passed in liste_animals
+*/
+void ecrire_animal(FILE *file, Animal *liste_anim, char *balise) {
+  fprintf(file, "<%s>\n", balise);
+  while (liste_anim) {
+    fprintf(file, "x=%d y=%d dir=[%d %d] e=%.6f\n",
+    liste_anim->x, liste_anim->y, liste_anim->dir[0], liste_anim->dir[1], liste_anim->energie);
+    liste_anim = liste_anim->suivant;
+  }
+  fprintf(file, "</%s>\n", balise);
+}
+
+
+void ecrire_ecosys(const char *nom_fichier, Animal *liste_predateur, Animal *liste_proie) {
+  FILE *f_eco_sys = fopen(nom_fichier, "w");
+  assert(f_eco_sys);
+  ecrire_animal(f_eco_sys, liste_proie, "proies");
+  ecrire_animal(f_eco_sys, liste_proie, "predateurs");
+  fclose(f_eco_sys);
+}
+
+void set_open_close_balise (char *balise, char *open_balise, char *close_balise) {
+  assert(strlen(balise) < 250);
+
+  strcat(open_balise, "<");
+  strcat(close_balise, "</");
+  strcat(open_balise, balise);
+  strcat(close_balise, balise);
+  strcat(open_balise, ">\n");
+  strcat(close_balise, ">\n");
+}
+
+void lire_animal(FILE *file, Animal **liste_anim, char *balise) {
+  char open_balise[MAX_LINE_SIZE] = "";
+  char close_balise[MAX_LINE_SIZE] = "";
+  char buffer[MAX_LINE_SIZE];
+  int x = 0, y = 0, dir[2] = {0, 0};
+  float e = 0;
+
+  set_open_close_balise(balise, open_balise, close_balise);
+  fgets(buffer, MAX_LINE_SIZE, file);
+  while(strcmp(buffer, open_balise) != 0)
+    fgets(buffer, strlen(open_balise) + 1, file);
+  while(fscanf(file, "x=%d y=%d dir=[%d %d] e=%f\n", &x, &y, dir, dir + 1, &e) == 5)
+    ajouter_animal_with_dir(x, y, e, dir, liste_anim);
+  fgets(buffer, MAX_LINE_SIZE, file);
+  if (strcmp(buffer, close_balise) != 0) {
+    printf("Erreur de lecture du fichier, balise %s non fermée\n", balise);
+    exit(EXIT_FAILURE);
+  }
+  rewind(file);
+}
+
+void lire_ecosys(const char *nom_fichier, Animal **liste_predateur, Animal **liste_proie) {
+  FILE *f_eco_sys = fopen(nom_fichier, "r");
+  assert(f_eco_sys);
+  lire_animal(f_eco_sys, liste_proie, "proies");
+  lire_animal(f_eco_sys, liste_predateur, "predateurs");
+}
 
 /* Part 2. Exercice 4, question 1 */
 void bouger_animaux(Animal *la) {
