@@ -4,6 +4,7 @@
 #define SIZE_X 20
 #define SIZE_Y 50
 #define MAX_LINE_SIZE 255
+#define FILE_NAME_ITER_ECOSYS "ecosys_iter.log"
 
 extern float p_ch_dir;
 extern float p_reproduce_proie;
@@ -39,10 +40,12 @@ void bouger_animal(Animal *la);
 void bouger_animaux(Animal *la);
 void reproduce(Animal **liste_animal, float p_reproduce);
 Animal *animal_en_XY(Animal *l, int x, int y);
-void rafraichir_predateurs(Animal **liste_predateur, Animal **liste_proie);
+void rafraichir_predateurs(Animal **liste_pred, Animal **liste_proie);
 void rafraichir_proies(Animal **liste_proie, int monde[SIZE_X][SIZE_Y]) ;
+void manger_proies(Animal **liste_predateur, Animal **liste_proie);
 void rafraichir_monde(int monde[SIZE_X][SIZE_Y]);
-
 void clear_screen();
+void init_monde(int monde[SIZE_X][SIZE_Y], int value);
+FILE *open_and_clean_file_ecosys();
 
 #endif

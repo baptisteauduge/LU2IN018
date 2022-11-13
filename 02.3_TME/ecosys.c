@@ -4,10 +4,10 @@
 #include <string.h>
 #include "ecosys.h"
 
-float p_ch_dir=0.01;
+float p_ch_dir=0.1;
 float p_reproduce_proie=0.4;
-float p_reproduce_predateur=0.5;
-int temps_repousse_herbe=-15;
+float p_reproduce_predateur=0.2;
+int temps_repousse_herbe=-6;
 
 /* PARTIE 1*/
 /* Fourni: Part 1, exercice 3, question 2 */
@@ -254,6 +254,7 @@ void bouger_animaux(Animal *la) {
 /* Part 2. Exercice 4, question 3 */
 void reproduce(Animal **liste_animal, float p_reproduce) {
   Animal *new_animals = NULL;
+  Animal *iter_animals_prev = NULL;
   Animal *iter_animals = *liste_animal;
 
   while (iter_animals) {
@@ -261,36 +262,110 @@ void reproduce(Animal **liste_animal, float p_reproduce) {
       ajouter_animal(iter_animals->x, iter_animals->y, iter_animals->energie / 2, &new_animals);
       iter_animals->energie /= 2;
     }
+    iter_animals_prev = iter_animals;
     iter_animals = iter_animals->suivant;
   }
-  if (new_animals) {
-    new_animals->suivant = *liste_animal;
+  if (iter_animals_prev)
+    iter_animals_prev->suivant = new_animals;
+  else
     *liste_animal = new_animals;
-  }
 }
 
 
 /* Part 2. Exercice 6, question 1 */
 void rafraichir_proies(Animal **liste_proie, int monde[SIZE_X][SIZE_Y]) {
-    /*A Completer*/
+  Animal *iter_proie = *liste_proie;
+  Animal *temp = NULL;
 
+  rafraichir_monde(monde);
+  bouger_animaux(*liste_proie);
+  while(iter_proie) {
+    if (monde[iter_proie->x][iter_proie->y] > 0) {
+      iter_proie->energie += monde[iter_proie->x][iter_proie->y];
+      monde[iter_proie->x][iter_proie->y] = temps_repousse_herbe;
+    }
+
+    if (--(iter_proie->energie) < 0) {
+      temp = iter_proie;
+      iter_proie = iter_proie->suivant;
+      enlever_animal(liste_proie, temp);
+      continue;
+    }
+    iter_proie = iter_proie->suivant;
+  }
+  reproduce(liste_proie, p_reproduce_proie);
 }
 
 /* Part 2. Exercice 7, question 1 */
 Animal *animal_en_XY(Animal *l, int x, int y) {
-    /*A Completer*/
+  while (l) {
+    if (l->x == x && l->y == y)
+      return l;
+    l = l->suivant;
+  }
 
   return NULL;
 } 
 
-/* Part 2. Exercice 7, question 2 */
-void rafraichir_predateurs(Animal **liste_predateur, Animal **liste_proie) {
-   /*A Completer*/
+void manger_proies(Animal **liste_predateur, Animal **liste_proie) {
+  Animal *predateur = NULL;
+  Animal *proie = NULL;
+  float energie_proie = 0;
 
+  for (int x = 0; x < SIZE_X; ++x) {
+    for (int y = 0; y < SIZE_Y; ++y) {
+      if (
+        (predateur = animal_en_XY(*liste_predateur, x, y)) 
+        && (proie = animal_en_XY(*liste_proie, x, y))
+      ) {
+        energie_proie = proie->energie;
+        predateur->energie += energie_proie;
+        enlever_animal(liste_proie, proie);
+      }
+    }
+  }
+}
+
+/* Part 2. Exercice 7, question 2 */
+void rafraichir_predateurs(Animal **liste_pred, Animal **liste_proie) {
+  Animal *iter_pred = *liste_pred;
+  Animal *temp = NULL;
+
+  bouger_animaux(*liste_pred);
+  manger_proies(liste_pred, liste_proie);
+  while(iter_pred) {
+    if (--(iter_pred->energie) < 0) {
+      temp = iter_pred;
+      iter_pred = iter_pred->suivant;
+      enlever_animal(liste_pred, temp);
+      continue;
+    }
+    iter_pred = iter_pred->suivant;
+  }
+  reproduce(liste_pred, p_reproduce_predateur);
 }
 
 /* Part 2. Exercice 5, question 2 */
 void rafraichir_monde(int monde[SIZE_X][SIZE_Y]){
+  for (int i = 0; i < SIZE_X; ++i) {
+    for (int j = 0; j < SIZE_Y; ++j) {
+      ++(monde[i][j]);
+    }
+  }
+}
 
-   /*A Completer*/
+void init_monde(int monde[SIZE_X][SIZE_Y], int value) {
+  for (int i = 0; i < SIZE_X; ++i)
+    for (int j = 0; j < SIZE_Y; ++j)
+      monde[i][j] = value;
+}
+
+FILE *open_and_clean_file_ecosys(){
+  FILE *file = fopen(FILE_NAME_ITER_ECOSYS, "w");
+  if (!file) {
+    fprintf(stderr, "Error: connot open file %s", FILE_NAME_ITER_ECOSYS);
+    exit(EXIT_FAILURE);
+  }
+
+  return file;
 }

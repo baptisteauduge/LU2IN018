@@ -51,18 +51,37 @@ int main_partie_1(void) {
 }
 
 int main(void) {
+  srand(time(NULL));
   Animal *liste_pred = NULL;
+  int init_nbr_pred = 400;
   Animal *liste_proie = NULL;
-  ajouter_animal(5, 5, 10, &liste_pred);
-  liste_pred->dir[0] = 1;
-  liste_pred->dir[1] = 1;
-  for (int i = 0; i < 50; i++) {
-    bouger_animaux(liste_pred);
-    reproduce(&liste_pred, 1);
+  int init_nbr_proie = 200;
+  int monde[SIZE_X][SIZE_Y];
+  FILE *file_ecosys = open_and_clean_file_ecosys();
+
+
+  init_monde(monde, 0);
+
+  for (int i = 0; i < init_nbr_proie; ++i){
+    ajouter_animal(rand() % SIZE_X, rand() % SIZE_Y, (rand() % 50) + 50, &liste_proie);
+  }
+
+  for (int i = 0; i < init_nbr_pred; ++i){
+    ajouter_animal(rand() % SIZE_X, rand() % SIZE_Y, (rand() % 50) + 50, &liste_pred);
+  }
+
+  for (int i = 0; i < 200 && liste_proie && liste_pred; ++i) {
+    rafraichir_proies(&liste_proie, monde);
+    rafraichir_predateurs(&liste_pred, &liste_proie);
     afficher_ecosys(liste_pred, liste_proie);
-    sleep(1);
+    fprintf(file_ecosys, "%d %d %d\n", i, compte_animal_it(liste_proie), compte_animal_it(liste_pred));
+    usleep(500000);
     clear_screen();
   }
+  afficher_ecosys(liste_pred, liste_proie);
+  fclose(file_ecosys);
+  liberer_liste_animaux(liste_pred);
+  liberer_liste_animaux(liste_proie);
 
   return EXIT_SUCCESS;
 }

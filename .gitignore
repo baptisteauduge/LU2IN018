@@ -60,3 +60,6 @@ dkms.conf
 
 #MacOs
 .DS_Store
+
+#Zip File
+*.zip
