@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #include "ecosys.h"
 
 #define NBR_PROIE_PRED 20
@@ -13,7 +14,7 @@ void generate_rand_x_y_energy(int *x, int *y, int *energy) {
   *energy = rand() % MAX_ENERGY;
 }
 
-void add_proie_pred (Animal **liste_proie, Animal **liste_pred) {
+void add_proie_pred(Animal **liste_proie, Animal **liste_pred) {
   int x = 0;
   int y = 0;
   int energy = 0;
@@ -62,20 +63,21 @@ int main(void) {
   srand(time(NULL));
 
   add_proie_pred(&liste_proie, &liste_predateurs);
+  afficher_ecosys(liste_predateurs, liste_proie);
+  usleep(300000);
   check_size_proie_pred(liste_proie, liste_predateurs);
-  bouger_animaux(liste_proie);
-  afficher_ecosys(liste_predateurs, liste_proie);
-  ecrire_ecosys("test_ecosys.conf", liste_predateurs, liste_proie);
-  liberer_liste_animaux(liste_proie);
-  liberer_liste_animaux(liste_predateurs);
-  liste_proie = NULL;
-  liste_predateurs = NULL;
-
-  lire_ecosys("test_ecosys.conf", &liste_predateurs, &liste_proie);
-  afficher_ecosys(liste_predateurs, liste_proie);
   find_del_animal_in_list(&liste_proie, &liste_predateurs);
+  ecrire_ecosys("test_ecosys.conf", liste_predateurs, liste_proie);
+  printf("Ecosys avant écriture\n");
   afficher_ecosys(liste_predateurs, liste_proie);
-  liberer_liste_animaux(liste_proie);
-  liberer_liste_animaux(liste_predateurs);
+  usleep(3000000);
+  liste_proie = liberer_liste_animaux(liste_proie);
+  liste_predateurs = liberer_liste_animaux(liste_predateurs);
+  lire_ecosys("test_ecosys.conf", &liste_predateurs, &liste_proie);
+  printf("Ecosys après lecture\n");
+  afficher_ecosys(liste_predateurs, liste_proie);
+  usleep(3000000);
+  liste_proie = liberer_liste_animaux(liste_proie);
+  liste_predateurs = liberer_liste_animaux(liste_predateurs);
   return EXIT_SUCCESS;
 }
