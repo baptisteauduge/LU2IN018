@@ -2,7 +2,7 @@
 #define _ECOSYS_H_
 
 #define SIZE_X 20
-#define SIZE_Y 50
+#define SIZE_Y 20
 #define MAX_LINE_SIZE 255
 #define FILE_NAME_ITER_ECOSYS "ecosys_iter.log"
 
@@ -27,6 +27,7 @@ unsigned int compte_animal_rec(Animal *la);
 unsigned int compte_animal_it(Animal *la);
 
 void ajouter_animal(int x, int y, float energie, Animal **liste_animal);
+void ajouter_animal_with_dir(int x, int y, float energie, int* dir, Animal **liste_animal);
 void enlever_animal(Animal **liste, Animal *animal);
 Animal* liberer_liste_animaux(Animal *liste);
 void afficher_ecosys(Animal *liste_predateur, Animal *liste_proie);
