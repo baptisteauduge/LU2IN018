@@ -9,8 +9,6 @@ float p_reproduce_proie=0.4;
 float p_reproduce_predateur=0.2;
 int temps_repousse_herbe=-6;
 
-/* PARTIE 1*/
-/* Fourni: Part 1, exercice 3, question 2 */
 Animal *creer_animal(int x, int y, float energie) {
   Animal *na = (Animal *)malloc(sizeof(Animal));
   assert(na);
@@ -23,8 +21,6 @@ Animal *creer_animal(int x, int y, float energie) {
   return na;
 }
 
-
-/* Fourni: Part 1, exercice 3, question 3 */
 Animal *ajouter_en_tete_animal(Animal *liste, Animal *animal) {
   assert(animal);
   assert(!animal->suivant);
@@ -32,7 +28,6 @@ Animal *ajouter_en_tete_animal(Animal *liste, Animal *animal) {
   return animal;
 }
 
-/* A faire. Part 1, exercice 5, question 1 */
 void ajouter_animal(int x, int y,  float energie, Animal **liste_animal) {
   assert(x < SIZE_X);
   assert(y < SIZE_Y);
@@ -45,7 +40,11 @@ void ajouter_animal(int x, int y,  float energie, Animal **liste_animal) {
 void ajouter_animal_with_dir(int x, int y, float energie, int* dir, Animal **liste_animal) {
   assert(x < SIZE_X);
   assert(y < SIZE_Y);
+  assert(dir);
+  assert(-1 <= dir[0] <= 1);
+  assert(-1 <= dir[1] <= 1);
   Animal *na = (Animal *)malloc(sizeof(Animal));
+  assert(na);
   na->x = x;
   na->y = y;
   na->energie = energie;
@@ -77,7 +76,6 @@ void enlever_animal(Animal **liste, Animal *animal) {
   }
 }
 
-/* A Faire. Part 1, exercice 5, question 2 */
 Animal* liberer_liste_animaux(Animal *liste) {
   Animal *tmp = NULL;
 
@@ -89,13 +87,11 @@ Animal* liberer_liste_animaux(Animal *liste) {
   return NULL;
 }
 
-/* Fourni: part 1, exercice 3, question 4 */
 unsigned int compte_animal_rec(Animal *la) {
   if (!la) return 0;
   return 1 + compte_animal_rec(la->suivant);
 }
 
-/* Fourni: part 1, exercice 3, question 4 */
 unsigned int compte_animal_it(Animal *la) {
   int cpt=0;
   while (la) {
@@ -105,7 +101,6 @@ unsigned int compte_animal_it(Animal *la) {
   return cpt;
 }
 
-/* Part 1. Exercice 4, question 1, ATTENTION, ce code est susceptible de contenir des erreurs... */
 void afficher_ecosys(Animal *liste_predateur, Animal *liste_proie) {
   unsigned int i, j;
   char ecosys[SIZE_X][SIZE_Y];
@@ -166,8 +161,6 @@ void clear_screen() {
   printf("\x1b[2J\x1b[1;1H");  /* code ANSI X3.4 pour effacer l'ecran */
 }
 
-/* PARTIE 2*/
-
 /*
 * Balise is the name of the balise around animals passed in liste_animals
 */
@@ -181,17 +174,19 @@ void ecrire_animal(FILE *file, Animal *liste_anim, char *balise) {
   fprintf(file, "</%s>\n", balise);
 }
 
-
 void ecrire_ecosys(const char *nom_fichier, Animal *liste_predateur, Animal *liste_proie) {
   FILE *f_eco_sys = fopen(nom_fichier, "w");
-  assert(f_eco_sys);
+  if (!f_eco_sys) {
+    fprintf(stderr, "Erreur lors de l'ouverture en écriture du fichier %s !\n", nom_fichier);
+    exit(EXIT_FAILURE);
+  }
   ecrire_animal(f_eco_sys, liste_proie, "proies");
-  ecrire_animal(f_eco_sys, liste_proie, "predateurs");
+  ecrire_animal(f_eco_sys, liste_predateur, "predateurs");
   fclose(f_eco_sys);
 }
 
 void set_open_close_balise (char *balise, char *open_balise, char *close_balise) {
-  assert(strlen(balise) < 250);
+  assert(strlen(balise) < MAX_LINE_SIZE - 3);
 
   strcat(open_balise, "<");
   strcat(close_balise, "</");
@@ -202,6 +197,7 @@ void set_open_close_balise (char *balise, char *open_balise, char *close_balise)
 }
 
 void lire_animal(FILE *file, Animal **liste_anim, char *balise) {
+  assert(file);
   char open_balise[MAX_LINE_SIZE] = "";
   char close_balise[MAX_LINE_SIZE] = "";
   char buffer[MAX_LINE_SIZE];
@@ -224,12 +220,17 @@ void lire_animal(FILE *file, Animal **liste_anim, char *balise) {
 
 void lire_ecosys(const char *nom_fichier, Animal **liste_predateur, Animal **liste_proie) {
   FILE *f_eco_sys = fopen(nom_fichier, "r");
-  assert(f_eco_sys);
+    if (!f_eco_sys) {
+    fprintf(stderr, "Erreur lors de l'ouverture en lecture du fichier %s !\n", nom_fichier);
+    exit(EXIT_FAILURE);
+  }
   lire_animal(f_eco_sys, liste_proie, "proies");
   lire_animal(f_eco_sys, liste_predateur, "predateurs");
+  fclose(f_eco_sys);
 }
 
 void bouger_animal(Animal *la) {
+  assert(la);
   if (la->energie <= 0) return;
   int x, y;
   x = (la->x + la->dir[0]) % SIZE_X;
@@ -243,7 +244,6 @@ void bouger_animal(Animal *la) {
   --(la->energie);
 }
 
-/* Part 2. Exercice 4, question 1 */
 void bouger_animaux(Animal *la) {
   while (la) {
     bouger_animal(la);
@@ -251,8 +251,8 @@ void bouger_animaux(Animal *la) {
   }
 }
 
-/* Part 2. Exercice 4, question 3 */
 void reproduce(Animal **liste_animal, float p_reproduce) {
+  assert(liste_animal);
   Animal *new_animals = NULL;
   Animal *iter_animals_prev = NULL;
   Animal *iter_animals = *liste_animal;
@@ -271,9 +271,9 @@ void reproduce(Animal **liste_animal, float p_reproduce) {
     *liste_animal = new_animals;
 }
 
-
-/* Part 2. Exercice 6, question 1 */
 void rafraichir_proies(Animal **liste_proie, int monde[SIZE_X][SIZE_Y]) {
+  assert(liste_proie);
+  assert(monde);
   Animal *iter_proie = *liste_proie;
   Animal *temp = NULL;
 
@@ -296,7 +296,6 @@ void rafraichir_proies(Animal **liste_proie, int monde[SIZE_X][SIZE_Y]) {
   reproduce(liste_proie, p_reproduce_proie);
 }
 
-/* Part 2. Exercice 7, question 1 */
 Animal *animal_en_XY(Animal *l, int x, int y) {
   while (l) {
     if (l->x == x && l->y == y)
@@ -326,8 +325,9 @@ void manger_proies(Animal **liste_predateur, Animal **liste_proie) {
   }
 }
 
-/* Part 2. Exercice 7, question 2 */
 void rafraichir_predateurs(Animal **liste_pred, Animal **liste_proie) {
+  assert(liste_pred);
+  assert(liste_proie);
   Animal *iter_pred = *liste_pred;
   Animal *temp = NULL;
 
@@ -345,8 +345,8 @@ void rafraichir_predateurs(Animal **liste_pred, Animal **liste_proie) {
   reproduce(liste_pred, p_reproduce_predateur);
 }
 
-/* Part 2. Exercice 5, question 2 */
 void rafraichir_monde(int monde[SIZE_X][SIZE_Y]){
+  assert(monde);
   for (int i = 0; i < SIZE_X; ++i) {
     for (int j = 0; j < SIZE_Y; ++j) {
       ++(monde[i][j]);
@@ -355,6 +355,7 @@ void rafraichir_monde(int monde[SIZE_X][SIZE_Y]){
 }
 
 void init_monde(int monde[SIZE_X][SIZE_Y], int value) {
+  assert(monde);
   for (int i = 0; i < SIZE_X; ++i)
     for (int j = 0; j < SIZE_Y; ++j)
       monde[i][j] = value;
