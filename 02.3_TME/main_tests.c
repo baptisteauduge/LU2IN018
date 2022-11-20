@@ -31,57 +31,15 @@ void create_liste_pred(Animal **liste_pred) {
   *liste_pred=a5;
 }
 
-void add_pred_proie (Animal **liste_pred, Animal **liste_proie) {
-  ajouter_animal(5, 5, 10, liste_pred);
-  ajouter_animal(6, 6, 10, liste_pred);
-  ajouter_animal(6, 6, 40, liste_proie);
-  ajouter_animal(19, 11, 6, liste_proie);
-}
-
-int main_partie_1(void) {
+int main(void) {
   Animal *liste_proie = NULL;
   Animal *liste_predateur = NULL;
   srand(time(NULL));
 
   create_liste_proie(&liste_proie);
   create_liste_pred(&liste_predateur);
-  add_pred_proie(&liste_predateur, &liste_proie);
   afficher_ecosys(liste_proie,liste_predateur);  
-  return EXIT_SUCCESS;
-}
-
-int main(void) {
-  srand(time(NULL));
-  Animal *liste_pred = NULL;
-  int init_nbr_pred = 400;
-  Animal *liste_proie = NULL;
-  int init_nbr_proie = 200;
-  int monde[SIZE_X][SIZE_Y];
-  FILE *file_ecosys = open_and_clean_file_ecosys();
-
-
-  init_monde(monde, 0);
-
-  for (int i = 0; i < init_nbr_proie; ++i){
-    ajouter_animal(rand() % SIZE_X, rand() % SIZE_Y, (rand() % 50) + 50, &liste_proie);
-  }
-
-  for (int i = 0; i < init_nbr_pred; ++i){
-    ajouter_animal(rand() % SIZE_X, rand() % SIZE_Y, (rand() % 50) + 50, &liste_pred);
-  }
-
-  for (int i = 0; i < 200 && liste_proie && liste_pred; ++i) {
-    rafraichir_proies(&liste_proie, monde);
-    rafraichir_predateurs(&liste_pred, &liste_proie);
-    afficher_ecosys(liste_pred, liste_proie);
-    fprintf(file_ecosys, "%d %d %d\n", i, compte_animal_it(liste_proie), compte_animal_it(liste_pred));
-    usleep(500000);
-    clear_screen();
-  }
-  afficher_ecosys(liste_pred, liste_proie);
-  fclose(file_ecosys);
-  liberer_liste_animaux(liste_pred);
-  liberer_liste_animaux(liste_proie);
-
+  liste_proie = liberer_liste_animaux(liste_proie);
+  liste_predateur = liberer_liste_animaux(liste_predateur);
   return EXIT_SUCCESS;
 }
